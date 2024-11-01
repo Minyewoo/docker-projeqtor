@@ -1,0 +1,45 @@
+services:
+  mysql:
+    image: mysql:9.1
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=changeme
+      - MYSQL_DATABASE=projeqtor
+  projeqtor:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    # image: nospy/projeqtor:latest
+    depends_on:
+      - mysql
+    volumes:
+      - projeqtor_documents:/mnt/documents
+      - projeqtor_attachments:/mnt/attachments
+      - projeqtor_logs:/mnt/logs
+    ports:
+      - "587:25"
+      - "80:80"
+    environment:
+      - PHP_MAX_EXECUTION_TIME=30
+      - PHP_MAX_INPUT_VARS=4000
+      - PHP_MAX_UPLOAD_SIZE=1G
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_REQUEST_TERMINATE_TIMEOUT=0
+      - PJT_ATTACHMENT_MAX_SIZE_MAIL=2097152
+      - PJT_DB_TYPE=mysql
+      - PJT_DB_HOST=mysql
+      - PJT_DB_PORT=3306
+      - PJT_DB_NAME=projeqtor
+      - PJT_DB_USER=root
+      - PJT_DB_PASSWORD=changeme
+volumes:
+  mysql_data:
+  projeqtor_documents:
+  projeqtor_attachments:
+  projeqtor_logs:
+
+networks:
+  projeqtor_network:
+    driver: bridge
+    attachable: true
